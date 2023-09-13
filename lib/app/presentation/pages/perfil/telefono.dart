@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../data/services/local/cache_db.dart';
 import '../../global/aro_lib.dart';
 
 class ElTelefono extends StatefulWidget {
@@ -15,6 +16,7 @@ class ElTelefono extends StatefulWidget {
 }
 
 class _ElTelefonoState extends State<ElTelefono> {
+  final dbCache = CacheDb();
   final _focusTel = FocusNode();
   final _telCtrler = TextEditingController();
   final _regex = RegExp(Andy.patternTel, caseSensitive: true);
@@ -45,6 +47,7 @@ class _ElTelefonoState extends State<ElTelefono> {
   @override
   void initState() {
     super.initState();
+    _telCtrler.text = dbCache.telUser;
     _focusTel.addListener(() {
       if (!_focusTel.hasFocus) onFieldSubmitted();
     });

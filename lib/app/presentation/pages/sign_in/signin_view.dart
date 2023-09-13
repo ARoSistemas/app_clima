@@ -26,9 +26,9 @@ class _SignInViewState extends State<SignInView> {
   bool _biometrico = false;
 
   void checkData() async {
-    print('''🌟
-              El nombre es :: $_nombre
-      ''');
+    // print('''🌟
+    //           El nombre es :: $_nombre
+    //   ''');
 
     // Si estoy mostrando el teclado
     if (MediaQuery.of(context).viewInsets.bottom != 0) {

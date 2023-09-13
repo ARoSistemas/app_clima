@@ -1,5 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:lottie/lottie.dart';
 
 import '../../../data/services/local/cache_db.dart';
@@ -20,7 +21,9 @@ class PerfilView extends StatefulWidget {
 
 class _PerfilViewState extends State<PerfilView> {
   final dbCache = CacheDb();
-  String correo = '';
+  final secureDb = const FlutterSecureStorage();
+
+  String _correo = '';
   String tel = '';
 
   void showAlert() async {
@@ -73,11 +76,16 @@ class _PerfilViewState extends State<PerfilView> {
     );
   }
 
-  void upData() {
-    if (correo.trim().isEmpty || tel.trim().isEmpty) return;
+  void upData() async {
+    if (MediaQuery.of(context).viewInsets.bottom != 0) {
+      FocusScope.of(context).unfocus();
+      await Future.delayed(const Duration(milliseconds: 750));
+    }
+
+    if (_correo.trim().isEmpty || tel.trim().isEmpty) return;
 
     dbCache.telUser = tel;
-    // Guardar correo en seguro
+    secureDb.write(key: 'email', value: _correo);
 
     showAlert();
   }
@@ -87,9 +95,7 @@ class _PerfilViewState extends State<PerfilView> {
     final hw = MediaQuery.of(context).size;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Perfil'),
-      ),
+      appBar: AppBar(title: const Text('Perfil')),
       backgroundColor: Colors.grey.shade50,
       body: SingleChildScrollView(
         child: Column(
@@ -126,7 +132,7 @@ class _PerfilViewState extends State<PerfilView> {
               padding: const EdgeInsets.all(13.0),
               child: ElCorreo(
                 setCorreo: (String value) {
-                  correo = value;
+                  _correo = value;
                 },
               ),
             ),
@@ -180,10 +186,13 @@ class _PerfilViewState extends State<PerfilView> {
                     child: SizedBox(
                       child: ElevatedButton(
                         style: StylesButtons.myStyle,
-                        onPressed: () {
-                          dbCache.nomUser = '';
-                          dbCache.telUser = '';
-                          Navigator.popAndPushNamed(context, Routes.signin);
+                        onPressed: () async {
+                          // borrar el SecureStorage
+                          await secureDb.delete(key: 'email').then((value) {
+                            dbCache.nomUser = '';
+                            dbCache.telUser = '';
+                            Navigator.popAndPushNamed(context, Routes.signin);
+                          });
                         },
                         child: const Padding(
                           padding: EdgeInsets.only(left: 25, right: 25),

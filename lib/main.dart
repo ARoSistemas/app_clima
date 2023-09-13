@@ -16,6 +16,9 @@ main() async {
   final dbCache = CacheDb();
   await dbCache.initPrefs();
 
+  // Se crea el cache seguro
+  const FlutterSecureStorage();
+
   runApp(Injector(
       connectivityRepository: ConnectivityImp(
         Connectivity(),

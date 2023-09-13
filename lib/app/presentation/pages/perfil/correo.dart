@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../global/aro_lib.dart';
 
@@ -15,6 +16,7 @@ class ElCorreo extends StatefulWidget {
 }
 
 class _ElCorreoState extends State<ElCorreo> {
+  final secureDb = const FlutterSecureStorage();
   final _focusCorreo = FocusNode();
   final _correoCtrler = TextEditingController();
   final _regex = RegExp(Andy.patternCorreo, caseSensitive: true);
@@ -22,12 +24,17 @@ class _ElCorreoState extends State<ElCorreo> {
   bool _isCorreoOk = false;
   bool _showLeyenda = false;
 
+  void getOldData() async {
+    final oldCorreo = await secureDb.read(key: 'email');
+    _correoCtrler.text = oldCorreo ?? '';
+  }
+
   // Validaciones del input
   void onFieldSubmitted() {
     if (_correoCtrler.text.trim() == '') {
       widget.setCorreo('');
     } else {
-      _isCorreoOk = (_regex.hasMatch(_correoCtrler.text)) ? true : false;
+      _isCorreoOk = (_regex.hasMatch(_correoCtrler.text));
       _showLeyenda = !_isCorreoOk;
       widget.setCorreo(_isCorreoOk ? _correoCtrler.text.trim() : '');
     }
@@ -45,10 +52,9 @@ class _ElCorreoState extends State<ElCorreo> {
   @override
   void initState() {
     super.initState();
+    getOldData();
     _focusCorreo.addListener(() {
-      if (!_focusCorreo.hasFocus) {
-        onFieldSubmitted();
-      }
+      if (!_focusCorreo.hasFocus) onFieldSubmitted();
     });
   }
 
