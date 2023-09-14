@@ -1,9 +1,10 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
 
-import '../../../../main.dart';
 import '../../../domain/model/user.dart';
+import '../../../domain/repositories/authentication_repository.dart';
 import '../../global/menu_bottom.dart';
 import '../../global/styles/buttons.dart';
 import '../../routes/routes.dart';
@@ -27,8 +28,9 @@ class _PerfilViewState extends State<PerfilView> {
   String _tel = '';
 
   void getData() async {
-    final injector = Injector.of(context);
-    final authentication = injector.authenticationRepository;
+    final authentication =
+        Provider.of<AuthenticationRepository>(context, listen: false);
+
     final user = await authentication.getUserData();
 
     _correo = user?.correo ?? '';
@@ -98,8 +100,8 @@ class _PerfilViewState extends State<PerfilView> {
       isFetching = true;
       setState(() {});
 
-      final injector = Injector.of(context);
-      final authentication = injector.authenticationRepository;
+      final authentication =
+          Provider.of<AuthenticationRepository>(context, listen: false);
 
       authentication.upData(User(_nombre, _tel, _correo));
 
@@ -214,15 +216,13 @@ class _PerfilViewState extends State<PerfilView> {
                           style: StylesButtons.myStyle,
                           onPressed: () async {
                             // Se borran datos y se cierra sesion
-                            await Injector.of(context)
-                                .authenticationRepository
-                                .signOut()
-                                .then(
-                              (value) {
-                                Navigator.popAndPushNamed(
-                                    context, Routes.signin);
-                              },
-                            );
+
+                            final authentication =
+                                Provider.of<AuthenticationRepository>(context,
+                                    listen: false);
+                            authentication.signOut().then((value) {
+                              Navigator.popAndPushNamed(context, Routes.signin);
+                            });
                           },
                           child: const Padding(
                             padding: EdgeInsets.only(left: 25, right: 25),

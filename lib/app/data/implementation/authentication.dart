@@ -1,10 +1,13 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart';
 
 import '../../domain/enums.dart';
+import '../../domain/model/clima.dart';
 import '../../domain/model/user.dart';
 import '../../domain/repositories/authentication_repository.dart';
 import '../../domain/repositories/either.dart';
 import '../services/local/cache_db.dart';
+import '../services/remote/get_clima.dart';
 
 const _key = 'correo';
 
@@ -58,5 +61,11 @@ class AuthenticationImp implements AuthenticationRepository {
     dbCache.nomUser = user.nombre;
     dbCache.telUser = user.tel;
     await _secureDb.write(key: _key, value: user.correo);
+  }
+
+  @override
+  Future<Clima> getWeather(String gps) async {
+    final cliente = GetClima(Client());
+    return cliente.requestWeather(gps);
   }
 }
