@@ -25,7 +25,7 @@ class _ElCorreoState extends State<ElCorreo> {
   bool _showLeyenda = false;
 
   void getOldData() async {
-    final oldCorreo = await secureDb.read(key: 'email');
+    final oldCorreo = await secureDb.read(key: 'correo');
     _correoCtrler.text = oldCorreo ?? '';
   }
 

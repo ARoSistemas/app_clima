@@ -1,25 +1,62 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import '../../domain/enums.dart';
 import '../../domain/model/user.dart';
 import '../../domain/repositories/authentication_repository.dart';
+import '../../domain/repositories/either.dart';
+import '../services/local/cache_db.dart';
 
-const _key = 'sessionId';
+const _key = 'correo';
 
 class AuthenticationImp implements AuthenticationRepository {
-  final FlutterSecureStorage _secureStorage;
+  final FlutterSecureStorage _secureDb;
+  final CacheDb dbCache;
 
-  AuthenticationImp(this._secureStorage);
+  AuthenticationImp(
+    this._secureDb,
+    this.dbCache,
+  );
 
   @override
-  Future<User?> getUserData() {
+  Future<User?> getUserData() async {
+    final nombre = dbCache.nomUser;
+    final tel = dbCache.telUser;
+    final correo = await _secureDb.read(key: _key);
+
     return Future.value(
-      null,
+      User(nombre, tel, correo ?? ''),
     );
   }
 
   @override
   Future<bool> get isSignedIn async {
-    final sessionId = await _secureStorage.read(key: _key);
-    return sessionId != null;
+    return dbCache.nomUser.isNotEmpty;
+  }
+
+  @override
+  Future<Either<SignInFailure, User>> signIn(
+    String userName,
+  ) async {
+    // if (userName != 'andy') {
+    //   return Either.left(SignInFailure.notFound);
+    // }
+    // Se guarda el nombre de usuario
+    dbCache.nomUser = userName;
+
+    return Either.right(User(userName, '', ''));
+  }
+
+  @override
+  Future<void> signOut() async {
+    await _secureDb.deleteAll();
+    dbCache.nomUser = '';
+    dbCache.telUser = '';
+  }
+
+  @override
+  void upData(User user) async {
+    dbCache.nomUser = user.nombre;
+    dbCache.telUser = user.tel;
+    await _secureDb.write(key: _key, value: user.correo);
   }
 }

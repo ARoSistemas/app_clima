@@ -74,14 +74,9 @@ class _SignInViewState extends State<SignInView> {
 
               SizedBox(height: hw.height * 0.3),
 
-              // EL nombre
               Padding(
                 padding: const EdgeInsets.all(13.0),
-                child: ElNombre(
-                  setNombre: (value) {
-                    _nombre = value;
-                  },
-                ),
+                child: ElNombre(setNombre: (value) => _nombre = value),
               ),
 
               // Boton

@@ -26,6 +26,7 @@ main() async {
       ),
       authenticationRepository: AuthenticationImp(
         const FlutterSecureStorage(),
+        dbCache,
       ),
       child: const ARoApp()));
 }

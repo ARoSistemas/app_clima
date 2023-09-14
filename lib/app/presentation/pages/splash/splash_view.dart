@@ -4,8 +4,6 @@ import '../../../../main.dart';
 import '../../routes/routes.dart';
 
 class SplashView extends StatefulWidget {
-  static String idPage = 'SplashView';
-
   const SplashView({Key? key}) : super(key: key);
 
   @override
@@ -16,7 +14,6 @@ class _SplashViewState extends State<SplashView> {
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addPostFrameCallback((_) => _init());
   }
 
@@ -66,8 +63,3 @@ class _SplashViewState extends State<SplashView> {
     );
   }
 }
-
-  // appBar: AppBar(
-      //   title: const Text('SplashView'),
-      // ),
-      // backgroundColor: Colors.blue,
