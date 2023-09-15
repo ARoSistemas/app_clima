@@ -52,6 +52,7 @@ class AuthenticationImp implements AuthenticationRepository {
     await _secureDb.deleteAll();
     _dbCache.nomUser = '';
     _dbCache.telUser = '';
+    _dbCache.selfie = '';
   }
 
   @override
