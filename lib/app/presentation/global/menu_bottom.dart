@@ -19,7 +19,6 @@ class _MenuBottomState extends State<MenuBottom> {
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
-      // backgroundColor: const Color(0xff6200ee),
       selectedItemColor: const Color(0xff6200ee),
       unselectedItemColor: Colors.grey,
       selectedFontSize: 14,

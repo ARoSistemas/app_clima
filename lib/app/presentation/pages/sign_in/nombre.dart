@@ -21,11 +21,6 @@ class _ElNombreState extends State<ElNombre> {
     setState(() {});
   }
 
-  // void onSubmited() {
-  //   widget.setNombre(_nombreCtrler.text.trim());
-  //   setState(() {});
-  // }
-
   void isEmpty() {
     widget.setNombre('');
     setState(() {});

@@ -17,5 +17,8 @@ class CacheDb {
   String get telUser => _dbCache.getString('telUser') ?? '';
   set telUser(String value) => _dbCache.setString('telUser', value);
 
+  String get selfie => _dbCache.getString('selfie') ?? '';
+  set selfie(String value) => _dbCache.setString('selfie', value);
+
 //
 }

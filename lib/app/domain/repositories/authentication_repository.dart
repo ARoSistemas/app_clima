@@ -12,9 +12,13 @@ abstract class AuthenticationRepository {
 
   void upData(User user) {}
 
+  void saveName(String nombre) {}
+
   Future<Clima> getWeather(String gps);
 
   Future<Either<SignInFailure, User>> signIn(
     String userName,
   );
+
+  ///
 }

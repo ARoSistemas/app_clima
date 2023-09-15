@@ -13,27 +13,25 @@ const _key = 'correo';
 
 class AuthenticationImp implements AuthenticationRepository {
   final FlutterSecureStorage _secureDb;
-  final CacheDb dbCache;
+  final CacheDb _dbCache;
 
   AuthenticationImp(
     this._secureDb,
-    this.dbCache,
+    this._dbCache,
   );
 
   @override
   Future<User?> getUserData() async {
-    final nombre = dbCache.nomUser;
-    final tel = dbCache.telUser;
     final correo = await _secureDb.read(key: _key);
 
     return Future.value(
-      User(nombre, tel, correo ?? ''),
+      User(_dbCache.nomUser, _dbCache.telUser, correo ?? '', _dbCache.selfie),
     );
   }
 
   @override
   Future<bool> get isSignedIn async {
-    return dbCache.nomUser.isNotEmpty;
+    return _dbCache.nomUser.isNotEmpty;
   }
 
   @override
@@ -44,23 +42,29 @@ class AuthenticationImp implements AuthenticationRepository {
     //   return Either.left(SignInFailure.notFound);
     // }
     // Se guarda el nombre de usuario
-    dbCache.nomUser = userName;
+    _dbCache.nomUser = userName;
 
-    return Either.right(User(userName, '', ''));
+    return Either.right(User(userName, '', '', ''));
   }
 
   @override
   Future<void> signOut() async {
     await _secureDb.deleteAll();
-    dbCache.nomUser = '';
-    dbCache.telUser = '';
+    _dbCache.nomUser = '';
+    _dbCache.telUser = '';
   }
 
   @override
   void upData(User user) async {
-    dbCache.nomUser = user.nombre;
-    dbCache.telUser = user.tel;
+    _dbCache.nomUser = user.nombre;
+    _dbCache.telUser = user.tel;
     await _secureDb.write(key: _key, value: user.correo);
+    _dbCache.selfie = user.selfie;
+  }
+
+  @override
+  void saveName(String nombre) {
+    _dbCache.nomUser = nombre;
   }
 
   @override
@@ -68,4 +72,6 @@ class AuthenticationImp implements AuthenticationRepository {
     final cliente = GetClima(Client());
     return cliente.requestWeather(gps);
   }
+
+  ///
 }

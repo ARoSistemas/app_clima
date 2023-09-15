@@ -1,7 +1,7 @@
 name: app_engine_core
 description: Weather App.
 publish_to: "none"
-version: 1.0.0+2
+version: 1.0.3+3
 
 environment:
   sdk: ">=3.0.5 <4.0.0"
@@ -9,6 +9,7 @@ environment:
 dependencies:
   animate_do: ^3.0.0
   another_flushbar: ^1.12.30
+  camera_snap: ^0.1.0
   connectivity_plus: ^4.0.2
   cupertino_icons: ^1.0.2
   flutter:
@@ -19,7 +20,7 @@ dependencies:
   liquid_pull_to_refresh: ^3.0.1
   local_auth: ^2.1.7
   lottie: ^2.6.0
-  permission_handler: ^11.0.0
+  permission_handler: ^9.2.0
   provider: ^6.0.5
   shared_preferences: ^2.2.1
 

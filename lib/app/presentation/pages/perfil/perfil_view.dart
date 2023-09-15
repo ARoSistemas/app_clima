@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:animate_do/animate_do.dart';
+import 'package:camera_snap/camera_snap.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
@@ -27,15 +30,20 @@ class _PerfilViewState extends State<PerfilView> {
   String _correo = '';
   String _tel = '';
 
-  void getData() async {
-    final authentication =
-        Provider.of<AuthenticationRepository>(context, listen: false);
+  String? _selfie;
 
-    final user = await authentication.getUserData();
+  void getData() async {
+    final auth = Provider.of<AuthenticationRepository>(
+      context,
+      listen: false,
+    );
+
+    final user = await auth.getUserData();
 
     _correo = user?.correo ?? '';
     _tel = user?.tel ?? '';
     _nombre = user?.nombre ?? '';
+    _selfie = user?.selfie;
     setState(() {});
   }
 
@@ -100,16 +108,44 @@ class _PerfilViewState extends State<PerfilView> {
       isFetching = true;
       setState(() {});
 
-      final authentication =
-          Provider.of<AuthenticationRepository>(context, listen: false);
+      final authentication = Provider.of<AuthenticationRepository>(
+        context,
+        listen: false,
+      );
 
-      authentication.upData(User(_nombre, _tel, _correo));
+      authentication.upData(
+        User(
+          _nombre,
+          _tel,
+          _correo,
+          _selfie ?? '',
+        ),
+      );
 
       showAlert();
 
       isFetching = false;
       setState(() {});
     }
+  }
+
+  void takePhoto() async {
+    final camara = CameraSnapScreen(
+      cameraType: CameraType.front,
+      appBar: AppBar(
+        title: const Text('Tomar imagen'),
+        backgroundColor: const Color(0xff6200ee),
+      ),
+    );
+
+    //
+    _selfie = await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => camara),
+    );
+
+    if (_selfie == null) return;
+
+    setState(() {});
   }
 
   @override
@@ -134,10 +170,27 @@ class _PerfilViewState extends State<PerfilView> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.account_circle,
-                    size: hw.height * 0.15,
-                    color: const Color(0xff6200ee),
+                  GestureDetector(
+                    onTap: () => takePhoto(),
+                    child: _selfie == null || _selfie!.trim().isEmpty
+                        ? Icon(
+                            Icons.account_circle,
+                            size: hw.height * 0.15,
+                            color: const Color(0xff6200ee),
+                          )
+                        : Container(
+                            width: hw.width * 0.28,
+                            height: hw.height * 0.15,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: FileImage(File(_selfie!)),
+                              ),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(50.0)),
+                              color: const Color(0xff6200ee),
+                            ),
+                          ),
                   )
                 ],
               ),
@@ -250,4 +303,6 @@ class _PerfilViewState extends State<PerfilView> {
       ),
     );
   }
+
+  ///
 }

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:local_auth/local_auth.dart';
+import 'package:provider/provider.dart';
 
-import '../../../data/services/local/cache_db.dart';
+import '../../../domain/repositories/authentication_repository.dart';
+import '../../../domain/repositories/huella_repository.dart';
 import '../../global/styles/buttons.dart';
 import '../../routes/routes.dart';
-import 'aut_error.dart';
 import 'nombre.dart';
 
 class SignInView extends StatefulWidget {
@@ -18,17 +17,20 @@ class SignInView extends StatefulWidget {
 }
 
 class _SignInViewState extends State<SignInView> {
-  final dbCache = CacheDb();
-  final snackBar =
-      const SnackBar(content: Text('Ingrese un nombre, antes de continuar...'));
+  ///
+
+  final snackBar = const SnackBar(
+    content: Text('Ingrese un nombre, antes de continuar...'),
+  );
 
   String _nombre = '';
   bool _biometrico = false;
 
   void checkData() async {
-    // print('''🌟
-    //           El nombre es :: $_nombre
-    //   ''');
+    final authentication = Provider.of<AuthenticationRepository>(
+      context,
+      listen: false,
+    );
 
     // Si estoy mostrando el teclado
     if (MediaQuery.of(context).viewInsets.bottom != 0) {
@@ -36,11 +38,9 @@ class _SignInViewState extends State<SignInView> {
       await Future.delayed(const Duration(milliseconds: 750));
     }
 
-    if (_nombre.trim().isEmpty) {
-      return;
-    }
+    if (_nombre.trim().isEmpty) return;
 
-    dbCache.nomUser = _nombre.trim();
+    authentication.saveName(_nombre.trim());
 
     //
     if (!mounted) return;
@@ -55,7 +55,6 @@ class _SignInViewState extends State<SignInView> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(title: const Text('Inicio')),
-        // backgroundColor: Colors.blue,
         body: SingleChildScrollView(
           child: Column(
             children: [
@@ -116,19 +115,23 @@ class _SignInViewState extends State<SignInView> {
                 ),
                 value: _biometrico,
                 activeColor: Colors.green,
-                onChanged: (bool value) {
+                onChanged: (bool value) async {
                   if (_nombre.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
                     return;
                   }
+                  _biometrico = value;
+                  setState(() {});
 
-                  setState(() {
-                    _biometrico = value;
-                    if (_biometrico) {
-                      getBiometrico();
-                    }
-                  });
+                  final authBiometric = Provider.of<HuellaRepository>(
+                    context,
+                    listen: false,
+                  );
+
+                  if (value) _biometrico = await authBiometric.hasHuella();
+                  setState(() {});
+
+                  if (_biometrico) checkData();
                 },
               ),
             ],
@@ -138,47 +141,5 @@ class _SignInViewState extends State<SignInView> {
     );
   }
 
-  void getBiometrico() async {
-    final auth = LocalAuthentication();
-
-    final canAuthenticateWithBiometrics = await auth.canCheckBiometrics;
-    final canAuthenticate =
-        canAuthenticateWithBiometrics || await auth.isDeviceSupported();
-
-    if (!canAuthenticateWithBiometrics && !canAuthenticate) {
-      _biometrico = false;
-      setState(() {});
-    }
-    // Solo si es posible usar biometricos
-
-    final List<BiometricType> availableBiometrics =
-        await auth.getAvailableBiometrics();
-
-    if (availableBiometrics.isNotEmpty) {
-      try {
-        final auth = LocalAuthentication();
-
-        final isAuth = await auth.authenticate(
-          localizedReason: 'Escanee su huella, para continuar',
-          options: const AuthenticationOptions(
-            stickyAuth: true,
-            biometricOnly: true,
-          ),
-        );
-
-        if (!isAuth) {
-          _biometrico = false;
-          setState(() {});
-        } else {
-          // ir a home
-          checkData();
-        }
-      } on PlatformException catch (e) {
-        if (e.code == AuthError.notEnrolled) {
-        } else if (e.code == AuthError.lockedOut ||
-            e.code == AuthError.permanentlyLockedOut) {
-        } else {}
-      }
-    }
-  }
+  ///
 }
